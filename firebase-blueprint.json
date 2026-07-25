@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "Expense": {
+      "title": "Expense",
+      "description": "Represents a single recorded personal expense.",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "description": "Expense monetary amount."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Category identifier.",
+          "maxLength": 128
+        },
+        "categoryName": {
+          "type": "string",
+          "description": "Name of category at creation time.",
+          "maxLength": 64
+        },
+        "categoryColor": {
+          "type": "string",
+          "description": "Hex color of category.",
+          "maxLength": 16
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional notes or details about the expense.",
+          "maxLength": 500
+        },
+        "date": {
+          "type": "string",
+          "description": "Formatted ISO date string (YYYY-MM-DD)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp string or server time."
+        }
+      },
+      "required": ["amount", "categoryId", "date"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Custom or default category for expenses.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Category label.",
+          "maxLength": 64
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex or tailwind color code.",
+          "maxLength": 16
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon descriptor or emoji.",
+          "maxLength": 32
+        },
+        "isDefault": {
+          "type": "boolean",
+          "description": "Flag for pre-populated default categories."
+        }
+      },
+      "required": ["name", "color"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User preference settings including monthly budget limit.",
+      "type": "object",
+      "properties": {
+        "monthlyBudget": {
+          "type": "number",
+          "description": "Monthly maximum budget goal."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency symbol e.g., ৳ or $.",
+          "maxLength": 8
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}/expenses/{expenseId}": {
+      "schema": { "$ref": "Expense" },
+      "description": "User's recorded expenses collection."
+    },
+    "/users/{userId}/categories/{categoryId}": {
+      "schema": { "$ref": "Category" },
+      "description": "User's custom and default categories collection."
+    },
+    "/users/{userId}/settings/{settingsId}": {
+      "schema": { "$ref": "UserSettings" },
+      "description": "User's configuration doc."
+    }
+  }
+}

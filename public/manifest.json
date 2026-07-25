@@ -1,0 +1,24 @@
+{
+  "short_name": "ExpenseTracker",
+  "name": "Personal Expense Tracker",
+  "description": "Smart, offline-first personal expense tracker with budget monitoring and local reminders",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait"
+}
