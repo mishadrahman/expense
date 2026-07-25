@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useExpense } from '../context/ExpenseContext';
 import { PwaInstallModal } from './PwaInstallModal';
-import { Wallet, Wifi, WifiOff, Smartphone, LogIn, LogOut, Bell, Sparkles, X } from 'lucide-react';
+import { Wallet, Wifi, WifiOff, Smartphone, LogIn, LogOut, Bell, Download, X } from 'lucide-react';
 
 export const Header: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSettings }) => {
   const {
@@ -22,7 +22,7 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSetting
 
   const handleInstallClick = () => {
     if (deferredPrompt) {
-      // Directly trigger Chrome/Android native "Install app" dialog
+      // Directly trigger Chrome/Android native "Install app" WebAPK prompt dialog
       installApp();
     } else if (isInIframe) {
       // Open in main browser window so Chrome captures PWA event and shows native prompt
@@ -34,24 +34,24 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSetting
 
   return (
     <>
-      {/* Top Banner Alert if App is NOT installed in Standalone mode */}
+      {/* Top Banner Alert matching PWA install banner design */}
       {!isStandalone && !isBannerDismissed && (
-        <div className="bg-slate-900 border-b border-slate-800 text-slate-100 px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-md">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-              <Smartphone className="w-4 h-4" />
+        <div className="bg-slate-900/95 border-b border-indigo-500/20 text-slate-100 px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-lg">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shrink-0 shadow-inner">
+              <Smartphone className="w-5 h-5 text-indigo-400" />
             </div>
             <div className="truncate">
-              <p className="font-extrabold text-slate-100 text-xs sm:text-sm leading-tight">Install Expense Tracker PWA</p>
+              <p className="font-bold text-slate-100 text-xs sm:text-sm leading-tight">Install Expense Tracker PWA</p>
               <p className="text-[10px] sm:text-xs text-slate-400">Add to your device for instant offline access</p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleInstallClick}
-              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-lg text-xs transition-transform active:scale-95 flex items-center gap-1.5 shadow-md shadow-emerald-500/20"
+              className="bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold px-3.5 py-1.5 rounded-xl text-xs transition-transform active:scale-95 flex items-center gap-1.5 shadow-md shadow-indigo-600/30"
             >
-              <Sparkles className="w-3.5 h-3.5 text-slate-950" />
+              <Download className="w-3.5 h-3.5 text-white" />
               <span>Install</span>
             </button>
             <button
