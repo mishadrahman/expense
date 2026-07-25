@@ -52,6 +52,7 @@ interface ExpenseContextType {
   sendTestNotification: () => void;
   deferredPrompt: any;
   installApp: () => void;
+  isStandalone: boolean;
 }
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -81,7 +82,26 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
     typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
   );
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true ||
+        document.referrer.includes('android-app://')
+      );
+    }
+    return false;
+  });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleAppInstalled = () => {
+      setIsStandalone(true);
+      setDeferredPrompt(null);
+    };
+    window.addEventListener('appinstalled', handleAppInstalled);
+    return () => window.removeEventListener('appinstalled', handleAppInstalled);
+  }, []);
 
   const openAuthModal = () => setIsAuthModalOpen(true);
   const closeAuthModal = () => setIsAuthModalOpen(false);
@@ -527,6 +547,7 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
         sendTestNotification,
         deferredPrompt,
         installApp,
+        isStandalone,
       }}
     >
       {children}

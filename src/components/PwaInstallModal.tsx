@@ -1,7 +1,7 @@
 import React from 'react';
 import { useExpense } from '../context/ExpenseContext';
 import { useBackToCloseModal } from '../hooks/useBackToCloseModal';
-import { X, Download, Smartphone, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, Smartphone, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface PwaInstallModalProps {
   isOpen: boolean;
@@ -79,7 +79,7 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClos
             onClick={handleInstallClick}
             className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all transform active:scale-98"
           >
-            <Download className="w-4 h-4" />
+            <Smartphone className="w-4 h-4" />
             <span>Install App Now</span>
           </button>
           <button

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useExpense } from '../context/ExpenseContext';
 import { PwaInstallModal } from './PwaInstallModal';
-import { Wallet, Wifi, WifiOff, Download, LogIn, LogOut, Bell } from 'lucide-react';
+import { Wallet, Wifi, WifiOff, Smartphone, LogIn, LogOut, Bell, Sparkles } from 'lucide-react';
 
 export const Header: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSettings }) => {
   const {
@@ -11,14 +11,42 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSetting
     logout,
     deferredPrompt,
     installApp,
+    isStandalone,
     notificationPermission,
     requestNotificationPermission
   } = useExpense();
 
   const [isPwaModalOpen, setIsPwaModalOpen] = useState(false);
 
+  const handleInstallClick = () => {
+    if (deferredPrompt) {
+      installApp();
+    } else {
+      setIsPwaModalOpen(true);
+    }
+  };
+
   return (
     <>
+      {/* Top Banner Alert if App is NOT installed in Standalone mode */}
+      {!isStandalone && (
+        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 text-slate-950 font-bold px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-md">
+          <div className="flex items-center gap-2 min-w-0">
+            <Smartphone className="w-4 h-4 shrink-0 text-slate-950" />
+            <span className="truncate">
+              অ্যাপটি ফোনে ইনস্টল করা নেই! ইনস্টল করতে এখানে চাপুন
+            </span>
+          </div>
+          <button
+            onClick={handleInstallClick}
+            className="bg-slate-950 hover:bg-slate-900 text-emerald-400 font-extrabold px-3 py-1 rounded-lg text-xs transition-transform active:scale-95 shrink-0 flex items-center gap-1 shadow-sm"
+          >
+            <Sparkles className="w-3 h-3 text-emerald-400" />
+            <span>ইনস্টল করুন</span>
+          </button>
+        </div>
+      )}
+
       <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 px-4 py-3">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
           {/* Logo & Name */}
@@ -49,21 +77,17 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSetting
               <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
             </div>
 
-            {/* PWA Install Button (Always visible) */}
-            <button
-              onClick={() => {
-                if (deferredPrompt) {
-                  installApp();
-                } else {
-                  setIsPwaModalOpen(true);
-                }
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold shadow-sm transition-all"
-              title="Install App / Add to Home Screen"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Install App</span>
-            </button>
+            {/* PWA Install Button (Without Download icon) */}
+            {!isStandalone && (
+              <button
+                onClick={handleInstallClick}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold shadow-sm transition-all"
+                title="Install App / Add to Home Screen"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Install App</span>
+              </button>
+            )}
 
             {/* Notification Permission Quick Trigger */}
             {notificationPermission !== 'granted' && (
