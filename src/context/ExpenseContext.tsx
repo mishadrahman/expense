@@ -53,6 +53,7 @@ interface ExpenseContextType {
   deferredPrompt: any;
   installApp: () => void;
   isStandalone: boolean;
+  isInIframe: boolean;
 }
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -89,6 +90,12 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
         (window.navigator as any).standalone === true ||
         document.referrer.includes('android-app://')
       );
+    }
+    return false;
+  });
+  const [isInIframe] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.self !== window.top;
     }
     return false;
   });
@@ -548,6 +555,7 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
         deferredPrompt,
         installApp,
         isStandalone,
+        isInIframe,
       }}
     >
       {children}

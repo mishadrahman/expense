@@ -12,6 +12,7 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSetting
     deferredPrompt,
     installApp,
     isStandalone,
+    isInIframe,
     notificationPermission,
     requestNotificationPermission
   } = useExpense();
@@ -21,6 +22,9 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSetting
   const handleInstallClick = () => {
     if (deferredPrompt) {
       installApp();
+    } else if (isInIframe) {
+      // In preview iframe, open directly in new tab so browser triggers native install
+      window.open(window.location.href, '_blank');
     } else {
       setIsPwaModalOpen(true);
     }
