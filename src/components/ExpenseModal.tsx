@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useExpense } from '../context/ExpenseContext';
+import { useBackToCloseModal } from '../hooks/useBackToCloseModal';
 import { Expense } from '../types';
 import { getTodayDateString } from '../utils/formatters';
 import { CategoryIcon } from './CategoryIcon';
@@ -19,6 +20,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({ isOpen, onClose, edi
   const [date, setDate] = useState<string>(getTodayDateString());
   const [note, setNote] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Enable back button to close modal on mobile/browser
+  useBackToCloseModal(isOpen, onClose);
 
   useEffect(() => {
     if (editExpense) {

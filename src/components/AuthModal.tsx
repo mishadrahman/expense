@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useExpense } from '../context/ExpenseContext';
+import { useBackToCloseModal } from '../hooks/useBackToCloseModal';
 import { X, Mail, Lock, User, LogIn, UserPlus, Sparkles, ShieldCheck } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
@@ -17,6 +18,9 @@ export const AuthModal: React.FC = () => {
   const [displayName, setDisplayName] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Close auth modal on Back button press
+  useBackToCloseModal(isAuthModalOpen, closeAuthModal);
 
   if (!isAuthModalOpen) return null;
 
