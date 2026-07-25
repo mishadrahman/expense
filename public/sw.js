@@ -1,19 +1,25 @@
-const CACHE_NAME = 'expense-tracker-v2';
+const CACHE_NAME = 'expense-tracker-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './favicon.ico'
+  './icon-192.png',
+  './icon-512.png',
+  './icon.svg'
 ];
 
 // Install Event
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
+    caches.open(CACHE_NAME).then(async (cache) => {
       console.log('[SW] Caching app shell');
-      return cache.addAll(ASSETS_TO_CACHE).catch((err) => {
-        console.warn('[SW] Caching failed for some assets:', err);
-      });
+      for (const asset of ASSETS_TO_CACHE) {
+        try {
+          await cache.add(asset);
+        } catch (err) {
+          console.warn('[SW] Could not cache asset:', asset, err);
+        }
+      }
     })
   );
   self.skipWaiting();
@@ -74,12 +80,12 @@ self.addEventListener('message', (event) => {
     const { title, body, icon } = event.data;
     self.registration.showNotification(title || 'Expense Reminder', {
       body: body || 'আজকের খরচ যোগ করেছো?',
-      icon: icon || '/favicon.ico',
-      badge: '/favicon.ico',
+      icon: icon || './icon-192.png',
+      badge: './icon-192.png',
       vibrate: [200, 100, 200],
       tag: 'expense-reminder-tag',
       renotify: true,
-      data: { url: '/' }
+      data: { url: './' }
     });
   }
 });
@@ -90,12 +96,12 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if (client.url === '/' && 'focus' in client) {
+        if (client.url === './' && 'focus' in client) {
           return client.focus();
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('/');
+        return clients.openWindow('./');
       }
     })
   );

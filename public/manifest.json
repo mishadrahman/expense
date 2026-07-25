@@ -17,6 +17,8 @@
     }
   ],
   "start_url": "./",
+  "scope": "./",
+  "id": "expense-tracker-pwa",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "display": "standalone",
