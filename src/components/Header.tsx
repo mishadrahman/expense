@@ -1,6 +1,5 @@
 import React from 'react';
 import { useExpense } from '../context/ExpenseContext';
-import { InstallButton } from './InstallButton';
 import { Wallet, Wifi, WifiOff, LogIn, LogOut, Bell } from 'lucide-react';
 
 export const Header: React.FC<{ onOpenSettings: () => void }> = () => {
@@ -31,9 +30,6 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = () => {
 
         {/* Status Indicators & Actions */}
         <div className="flex items-center gap-2">
-          {/* PWA Install Button */}
-          <InstallButton variant="header" />
-
           {/* Network status */}
           <div
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${

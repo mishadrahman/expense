@@ -1,74 +1,60 @@
 import React from 'react';
 import { usePWA } from '../context/PWAContext';
-import { X, Zap, WifiOff, ExternalLink } from 'lucide-react';
-import { InstallButton } from './InstallButton';
+import { Download, ExternalLink } from 'lucide-react';
 
 export const InstallAppBanner: React.FC = () => {
-  const { isInstalled, isStandalone, isIframe, dismissInstallBanner, isBannerDismissed } = usePWA();
+  const { isInstalled, isStandalone, isIframe, isInstallable, promptInstall } = usePWA();
 
-  // Hide if already installed, in standalone mode, or dismissed
-  if (isStandalone || isInstalled || isBannerDismissed) {
+  // Hide if already installed or running as a native app
+  if (isStandalone || isInstalled) {
     return null;
   }
 
-  const handleOpenNewTab = () => {
-    window.open(window.location.href, '_blank', 'noopener,noreferrer');
-  };
+  // Inside iframe (AI Studio preview), beforeinstallprompt doesn't fire natively.
+  // We prompt the user to open in a new tab first.
+  if (isIframe) {
+    return (
+      <div 
+        onClick={() => window.open(window.location.href, '_blank', 'noopener,noreferrer')}
+        className="bg-indigo-600 hover:bg-indigo-500 transition-colors cursor-pointer w-full z-50 relative"
+      >
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+              <ExternalLink className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm leading-tight">Install App</p>
+              <p className="text-indigo-100 text-xs mt-0.5">Open in a new tab to install as a native app</p>
+            </div>
+          </div>
+          <span className="text-white text-xs font-bold px-3 py-1.5 bg-indigo-700/50 rounded-lg">Open</span>
+        </div>
+      </div>
+    );
+  }
+
+  // If outside iframe, only show banner when beforeinstallprompt has fired (app is installable)
+  if (!isInstallable) {
+    return null;
+  }
 
   return (
-    <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/80 border-b border-emerald-500/30 px-4 py-2.5 text-slate-100 shadow-xl relative z-40 animate-fadeIn">
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        {/* Left: App Icon & Info */}
+    <div 
+      onClick={promptInstall}
+      className="bg-emerald-600 hover:bg-emerald-500 transition-colors cursor-pointer w-full z-50 relative"
+    >
+      <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 shadow-md shadow-emerald-900/40 shrink-0">
-            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-              <img src="/icon-192.png" alt="Tracker Icon" className="w-5 h-5 rounded-lg object-cover" />
-            </div>
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+            <Download className="w-4 h-4 text-white" />
           </div>
-
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-extrabold text-xs sm:text-sm text-slate-100 leading-tight">
-                Install Expense Tracker App
-              </h3>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">
-                PWA Ready
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-300 flex items-center gap-3 mt-0.5">
-              <span className="flex items-center gap-1">
-                <Zap className="w-3 h-3 text-amber-400 inline" /> Standalone Mobile App
-              </span>
-              <span className="flex items-center gap-1">
-                <WifiOff className="w-3 h-3 text-teal-400 inline" /> Offline Access
-              </span>
-            </p>
+            <p className="text-white font-semibold text-sm leading-tight">Install Expense Tracker</p>
+            <p className="text-emerald-100 text-xs mt-0.5">Add to your device for a faster, offline experience</p>
           </div>
         </div>
-
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          {isIframe ? (
-            <button
-              onClick={handleOpenNewTab}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-xs font-extrabold shadow-md shadow-emerald-500/20 active:scale-95 transition-all"
-              title="Open in new browser tab to trigger native Install App prompt"
-            >
-              <ExternalLink className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>নতুন ট্যাবে খুলুন ও ইনস্টল করুন</span>
-            </button>
-          ) : (
-            <InstallButton variant="compact" />
-          )}
-
-          <button
-            onClick={dismissInstallBanner}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 transition-colors"
-            title="Dismiss banner"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+        <span className="text-white text-xs font-bold px-3 py-1.5 bg-emerald-700/50 rounded-lg whitespace-nowrap">Install Now</span>
       </div>
     </div>
   );
