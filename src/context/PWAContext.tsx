@@ -10,6 +10,7 @@ interface PWAContextType {
   isInstalled: boolean;
   isStandalone: boolean;
   isIOS: boolean;
+  isIframe: boolean;
   hasUpdate: boolean;
   promptInstall: () => Promise<boolean>;
   updateApp: () => void;
@@ -25,6 +26,7 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isInstalled, setIsInstalled] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [isIframe, setIsIframe] = useState(false);
   const [hasUpdate, setHasUpdate] = useState(false);
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const [isBannerDismissed, setIsBannerDismissed] = useState(() => {
@@ -33,6 +35,8 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Check standalone mode and iOS environment
   useEffect(() => {
+    setIsIframe(window.self !== window.top);
+
     const checkStandalone = () => {
       const isStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
@@ -195,6 +199,7 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isInstalled,
         isStandalone,
         isIOS,
+        isIframe,
         hasUpdate,
         promptInstall,
         updateApp,
