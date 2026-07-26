@@ -10,23 +10,25 @@ interface PwaInstallModalProps {
 
 export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClose }) => {
   const { deferredPrompt, installApp, isInIframe, clearCacheAndReload } = useExpense();
+  const [showManualGuide, setShowManualGuide] = React.useState(false);
 
   // Close PWA modal on Back button press
   useBackToCloseModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
-  const handleInstallClick = () => {
-    if (deferredPrompt) {
-      installApp();
-      onClose();
-    } else if (isInIframe) {
+  const handleInstallClick = async () => {
+    if (isInIframe) {
       window.open(window.location.href, '_blank');
       onClose();
-    } else {
-      // Try installApp or fallback
-      installApp();
+      return;
+    }
+
+    const success = await installApp();
+    if (success) {
       onClose();
+    } else {
+      setShowManualGuide(true);
     }
   };
 
@@ -66,6 +68,15 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClos
             <Download className="w-4 h-4" />
             <span>ইনস্টল করুন (Install App)</span>
           </button>
+
+          {showManualGuide && (
+            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-left text-xs text-amber-200 space-y-1 animate-fadeIn">
+              <p className="font-bold text-amber-400">সরাসরি প্রম্পট পাওয়া যায়নি:</p>
+              <p className="text-[11px] text-slate-300">
+                ব্রাউজারের (⋮) মেনু থেকে <strong className="text-white">"Install app"</strong> অথবা <strong className="text-white">"Add to Home screen"</strong> চাপুন।
+              </p>
+            </div>
+          )}
 
           {/* Dev / Cache Reset Button requested by user */}
           <button

@@ -51,7 +51,7 @@ interface ExpenseContextType {
   requestNotificationPermission: () => Promise<boolean>;
   sendTestNotification: () => void;
   deferredPrompt: any;
-  installApp: () => void;
+  installApp: () => Promise<boolean>;
   isStandalone: boolean;
   isInIframe: boolean;
   clearCacheAndReload: () => Promise<void>;
@@ -130,25 +130,48 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Listen for PWA beforeinstallprompt
   useEffect(() => {
+    if ((window as any).deferredPrompt) {
+      setDeferredPrompt((window as any).deferredPrompt);
+    }
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
+      (window as any).deferredPrompt = e;
       setDeferredPrompt(e);
     };
 
+    const handlePromptAvailable = () => {
+      if ((window as any).deferredPrompt) {
+        setDeferredPrompt((window as any).deferredPrompt);
+      }
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('pwa-prompt-available', handlePromptAvailable);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('pwa-prompt-available', handlePromptAvailable);
+    };
   }, []);
 
-  const installApp = useCallback(() => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult: any) => {
-        if (choiceResult.outcome === 'accepted') {
+  const installApp = useCallback(async (): Promise<boolean> => {
+    const promptEvent = deferredPrompt || (window as any).deferredPrompt;
+    if (promptEvent) {
+      try {
+        await promptEvent.prompt();
+        const choiceResult = await promptEvent.userChoice;
+        if (choiceResult && choiceResult.outcome === 'accepted') {
           console.log('User accepted the PWA install prompt');
         }
+        (window as any).deferredPrompt = null;
         setDeferredPrompt(null);
-      });
+        return true;
+      } catch (err) {
+        console.error('Error triggering PWA prompt:', err);
+      }
     }
+    return false;
   }, [deferredPrompt]);
 
   const clearCacheAndReload = useCallback(async () => {

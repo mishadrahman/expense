@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#0f172a" />
     <meta name="description" content="Personal Expense Tracker with offline capability, budget monitoring, and reminders." />
+    <script>
+      window.deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.deferredPrompt = e;
+        window.dispatchEvent(new Event('pwa-prompt-available'));
+      });
+    </script>
     <link rel="manifest" href="./manifest.json" />
     <link rel="apple-touch-icon" href="./icon-192.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -20,14 +20,13 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSetting
   const [isPwaModalOpen, setIsPwaModalOpen] = useState(false);
   const [isBannerDismissed, setIsBannerDismissed] = useState(false);
 
-  const handleInstallClick = () => {
-    if (deferredPrompt) {
-      // Directly trigger Chrome/Android native "Install app" WebAPK prompt dialog
-      installApp();
-    } else if (isInIframe) {
-      // Open in main browser window so Chrome captures PWA event and shows native prompt
+  const handleInstallClick = async () => {
+    if (isInIframe) {
       window.open(window.location.href, '_blank');
-    } else {
+      return;
+    }
+    const success = await installApp();
+    if (!success) {
       setIsPwaModalOpen(true);
     }
   };
