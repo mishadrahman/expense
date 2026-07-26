@@ -3,7 +3,6 @@ import { useExpense } from '../context/ExpenseContext';
 import {
   Bell,
   CheckCircle2,
-  Download,
   Globe,
   LogIn,
   LogOut,
@@ -30,8 +29,6 @@ export const SettingsView: React.FC = () => {
     notificationPermission,
     requestNotificationPermission,
     sendTestNotification,
-    deferredPrompt,
-    installApp,
     clearCacheAndReload,
   } = useExpense();
 
@@ -264,36 +261,26 @@ export const SettingsView: React.FC = () => {
           </div>
         </div>
 
-        {/* PWA & Offline Support Card */}
+        {/* Storage & Cache Options Card */}
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-lg space-y-3">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
             <div className="w-8 h-8 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
               <Smartphone className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-slate-100">PWA & Offline Capability</h3>
-              <p className="text-xs text-slate-400">Native mobile experience with zero data loss</p>
+              <h3 className="font-bold text-sm text-slate-100">Data & Cache Options</h3>
+              <p className="text-xs text-slate-400">Manage offline data persistence and cache updates</p>
             </div>
           </div>
 
           <div className="flex items-center justify-between text-xs text-slate-300">
-            <span>Offline Persistence:</span>
+            <span>Offline Data Storage:</span>
             <span className="font-bold text-emerald-400 flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Enabled (IndexedDB Cache)
+              <CheckCircle2 className="w-3.5 h-3.5" /> Enabled (IndexedDB / LocalStorage)
             </span>
           </div>
 
-          <div className="pt-2 space-y-2">
-            {deferredPrompt && (
-              <button
-                type="button"
-                onClick={installApp}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all"
-              >
-                <Download className="w-4 h-4" /> Install Application to Home Screen
-              </button>
-            )}
-
+          <div className="pt-2">
             <button
               type="button"
               onClick={clearCacheAndReload}

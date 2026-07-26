@@ -3,18 +3,12 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Register Service Worker for PWA & Offline Support
+// Unregister any legacy Service Workers
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    const swUrl = import.meta.env.BASE_URL ? `${import.meta.env.BASE_URL}sw.js` : './sw.js';
-    navigator.serviceWorker
-      .register(swUrl)
-      .then((reg) => {
-        console.log('[PWA] Service Worker registered scope:', reg.scope);
-      })
-      .catch((err) => {
-        console.warn('[PWA] Service Worker registration failed:', err);
-      });
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.unregister();
+    }
   });
 }
 

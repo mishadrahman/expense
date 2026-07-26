@@ -46,14 +46,10 @@ interface ExpenseContextType {
   isAuthModalOpen: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
-  // Notification & PWA
+  // Notification & Cache
   notificationPermission: NotificationPermission;
   requestNotificationPermission: () => Promise<boolean>;
   sendTestNotification: () => void;
-  deferredPrompt: any;
-  installApp: () => Promise<boolean>;
-  isStandalone: boolean;
-  isInIframe: boolean;
   clearCacheAndReload: () => Promise<void>;
 }
 
@@ -83,33 +79,7 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(
     typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
   );
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isStandalone, setIsStandalone] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return (
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone === true ||
-        document.referrer.includes('android-app://')
-      );
-    }
-    return false;
-  });
-  const [isInIframe] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return window.self !== window.top;
-    }
-    return false;
-  });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-  useEffect(() => {
-    const handleAppInstalled = () => {
-      setIsStandalone(true);
-      setDeferredPrompt(null);
-    };
-    window.addEventListener('appinstalled', handleAppInstalled);
-    return () => window.removeEventListener('appinstalled', handleAppInstalled);
-  }, []);
 
   const openAuthModal = () => setIsAuthModalOpen(true);
   const closeAuthModal = () => setIsAuthModalOpen(false);
@@ -127,52 +97,6 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
-
-  // Listen for PWA beforeinstallprompt
-  useEffect(() => {
-    if ((window as any).deferredPrompt) {
-      setDeferredPrompt((window as any).deferredPrompt);
-    }
-
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      (window as any).deferredPrompt = e;
-      setDeferredPrompt(e);
-    };
-
-    const handlePromptAvailable = () => {
-      if ((window as any).deferredPrompt) {
-        setDeferredPrompt((window as any).deferredPrompt);
-      }
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('pwa-prompt-available', handlePromptAvailable);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('pwa-prompt-available', handlePromptAvailable);
-    };
-  }, []);
-
-  const installApp = useCallback(async (): Promise<boolean> => {
-    const promptEvent = deferredPrompt || (window as any).deferredPrompt;
-    if (promptEvent) {
-      try {
-        await promptEvent.prompt();
-        const choiceResult = await promptEvent.userChoice;
-        if (choiceResult && choiceResult.outcome === 'accepted') {
-          console.log('User accepted the PWA install prompt');
-        }
-        (window as any).deferredPrompt = null;
-        setDeferredPrompt(null);
-        return true;
-      } catch (err) {
-        console.error('Error triggering PWA prompt:', err);
-      }
-    }
-    return false;
-  }, [deferredPrompt]);
 
   const clearCacheAndReload = useCallback(async () => {
     try {
@@ -602,10 +526,6 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
         notificationPermission,
         requestNotificationPermission,
         sendTestNotification,
-        deferredPrompt,
-        installApp,
-        isStandalone,
-        isInIframe,
         clearCacheAndReload,
       }}
     >
