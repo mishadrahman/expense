@@ -34,27 +34,32 @@ export const InstallAppBanner: React.FC = () => {
     );
   }
 
-  // If outside iframe, only show banner when beforeinstallprompt has fired (app is installable)
-  if (!isInstallable) {
-    return null;
-  }
+  const handleInstallClick = () => {
+    if (isInstallable) {
+      promptInstall();
+    } else {
+      alert("Browser is preparing the install option. Please interact with the app for a few seconds or use the browser's menu to 'Add to Home screen'.");
+    }
+  };
 
   return (
     <div 
-      onClick={promptInstall}
-      className="bg-emerald-600 hover:bg-emerald-500 transition-colors cursor-pointer w-full z-50 relative"
+      onClick={handleInstallClick}
+      className="bg-emerald-600 hover:bg-emerald-500 transition-colors cursor-pointer w-full z-50 relative animate-fadeIn"
     >
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
-            <Download className="w-4 h-4 text-white" />
+            <Download className="w-4 h-4 text-white animate-bounce" />
           </div>
           <div>
             <p className="text-white font-semibold text-sm leading-tight">Install Expense Tracker</p>
-            <p className="text-emerald-100 text-xs mt-0.5">Add to your device for a faster, offline experience</p>
+            <p className="text-emerald-100 text-xs mt-0.5">Click here to install directly to your device</p>
           </div>
         </div>
-        <span className="text-white text-xs font-bold px-3 py-1.5 bg-emerald-700/50 rounded-lg whitespace-nowrap">Install Now</span>
+        <span className="text-white text-xs font-bold px-3 py-1.5 bg-emerald-700/50 rounded-lg whitespace-nowrap shadow-sm">
+          Install
+        </span>
       </div>
     </div>
   );
