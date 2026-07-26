@@ -54,6 +54,7 @@ interface ExpenseContextType {
   installApp: () => void;
   isStandalone: boolean;
   isInIframe: boolean;
+  clearCacheAndReload: () => Promise<void>;
 }
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -149,6 +150,32 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
       });
     }
   }, [deferredPrompt]);
+
+  const clearCacheAndReload = useCallback(async () => {
+    try {
+      // Unregister Service Workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const reg of registrations) {
+          await reg.unregister();
+        }
+      }
+      // Delete Cache Storage
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      // Clear session storage
+      sessionStorage.clear();
+      
+      // Hard refresh with query parameter to bypass cache
+      const freshUrl = window.location.origin + window.location.pathname + '?refresh=' + Date.now();
+      window.location.href = freshUrl;
+    } catch (err) {
+      console.error('Error clearing cache:', err);
+      window.location.reload();
+    }
+  }, []);
 
   // Handle Auth state changes
   useEffect(() => {
@@ -556,6 +583,7 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
         installApp,
         isStandalone,
         isInIframe,
+        clearCacheAndReload,
       }}
     >
       {children}

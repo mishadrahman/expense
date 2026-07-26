@@ -1,7 +1,7 @@
 import React from 'react';
 import { useExpense } from '../context/ExpenseContext';
 import { useBackToCloseModal } from '../hooks/useBackToCloseModal';
-import { X, Smartphone, Download } from 'lucide-react';
+import { X, Smartphone, Download, RefreshCw } from 'lucide-react';
 
 interface PwaInstallModalProps {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface PwaInstallModalProps {
 }
 
 export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClose }) => {
-  const { deferredPrompt, installApp, isInIframe } = useExpense();
+  const { deferredPrompt, installApp, isInIframe, clearCacheAndReload } = useExpense();
 
   // Close PWA modal on Back button press
   useBackToCloseModal(isOpen, onClose);
@@ -56,8 +56,8 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClos
           </div>
         </div>
 
-        {/* Direct Action Button - No manual text guides */}
-        <div className="space-y-3">
+        {/* Direct Action Buttons */}
+        <div className="space-y-2.5">
           <button
             type="button"
             onClick={handleInstallClick}
@@ -66,11 +66,21 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClos
             <Download className="w-4 h-4" />
             <span>ইনস্টল করুন (Install App)</span>
           </button>
-          
+
+          {/* Dev / Cache Reset Button requested by user */}
+          <button
+            type="button"
+            onClick={clearCacheAndReload}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs border border-amber-500/30 transition-all active:scale-95"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin-slow" />
+            <span>ক্যাশ মুছে নতুন আপডেট নিন (Clear Cache)</span>
+          </button>
+
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors"
+            className="w-full py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors"
           >
             পরে করব (Not Now)
           </button>
@@ -79,4 +89,5 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClos
     </div>
   );
 };
+
 

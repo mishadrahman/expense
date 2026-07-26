@@ -32,6 +32,7 @@ export const SettingsView: React.FC = () => {
     sendTestNotification,
     deferredPrompt,
     installApp,
+    clearCacheAndReload,
   } = useExpense();
 
   const [budget, setBudget] = useState<string>(settings.monthlyBudget.toString());
@@ -282,8 +283,8 @@ export const SettingsView: React.FC = () => {
             </span>
           </div>
 
-          {deferredPrompt && (
-            <div className="pt-2">
+          <div className="pt-2 space-y-2">
+            {deferredPrompt && (
               <button
                 type="button"
                 onClick={installApp}
@@ -291,8 +292,17 @@ export const SettingsView: React.FC = () => {
               >
                 <Download className="w-4 h-4" /> Install Application to Home Screen
               </button>
-            </div>
-          )}
+            )}
+
+            <button
+              type="button"
+              onClick={clearCacheAndReload}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold border border-amber-500/30 transition-all"
+            >
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span>ক্যাশ ও ক্যাশ ফাইল মুছে নতুন আপডেট নিন (Clear Cache & Reload)</span>
+            </button>
+          </div>
         </div>
 
         {/* Firebase Cloud Sync & Auth Card */}
