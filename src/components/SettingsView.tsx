@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useExpense } from '../context/ExpenseContext';
+import { usePWA } from '../context/PWAContext';
+import { InstallButton } from './InstallButton';
 import {
   Bell,
   CheckCircle2,
@@ -16,6 +18,7 @@ import {
   Plus,
   Trash2,
   Clock,
+  Download,
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
@@ -32,6 +35,7 @@ export const SettingsView: React.FC = () => {
     clearCacheAndReload,
   } = useExpense();
 
+  const { isStandalone, isInstalled } = usePWA();
   const [budget, setBudget] = useState<string>(settings.monthlyBudget.toString());
   const [currency, setCurrency] = useState<string>(settings.currency || '৳');
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(settings.notificationsEnabled);
@@ -258,6 +262,50 @@ export const SettingsView: React.FC = () => {
             >
               <Bell className="w-3.5 h-3.5" /> Send Test Local Notification
             </button>
+          </div>
+        </div>
+
+        {/* Progressive Web App (PWA) Section */}
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-lg space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <Smartphone className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-slate-100">Progressive Web App (PWA)</h3>
+                <p className="text-xs text-slate-400">Install as native application on Android, iOS, or Desktop</p>
+              </div>
+            </div>
+
+            {isStandalone || isInstalled ? (
+              <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> App Installed
+              </span>
+            ) : (
+              <span className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold">
+                Browser Mode
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-300">
+            <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
+              <span className="font-bold text-slate-200 block">📱 Standalone Window</span>
+              <p className="text-[11px] text-slate-400">Opens in full screen with no browser search bar or chrome UI.</p>
+            </div>
+            <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
+              <span className="font-bold text-slate-200 block">📴 Offline First</span>
+              <p className="text-[11px] text-slate-400">Opens instantly without internet connection using cached assets.</p>
+            </div>
+            <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
+              <span className="font-bold text-slate-200 block">🚀 Home Screen Icon</span>
+              <p className="text-[11px] text-slate-400">Launches directly from app drawer and desktop home screen.</p>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-slate-800">
+            <InstallButton variant="settings" />
           </div>
         </div>
 

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ExpenseProvider } from './context/ExpenseContext';
 import { Header } from './components/Header';
 import { OfflineBanner } from './components/OfflineBanner';
+import { InstallAppBanner } from './components/InstallAppBanner';
+import { UpdateBanner } from './components/UpdateBanner';
 import { NavigationTabs, TabType } from './components/NavigationTabs';
 import { DashboardView } from './components/DashboardView';
 import { ExpenseListView } from './components/ExpenseListView';
@@ -32,6 +34,9 @@ function AppContent() {
       {/* Offline Alert Banner */}
       <OfflineBanner />
 
+      {/* PWA Install Promo Banner */}
+      <InstallAppBanner />
+
       {/* Top Header */}
       <Header onOpenSettings={() => setActiveTab('settings')} />
 
@@ -59,6 +64,9 @@ function AppContent() {
 
       {/* Floating Add Expense Quick Button */}
       <FloatingAddButton onClick={handleOpenAddModal} />
+
+      {/* Service Worker Update Alert Toast */}
+      <UpdateBanner />
 
       {/* Add / Edit Expense Modal */}
       <ExpenseModal
