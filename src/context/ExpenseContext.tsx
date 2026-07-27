@@ -115,9 +115,8 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Clear session storage
       sessionStorage.clear();
       
-      // Hard refresh with query parameter to bypass cache
-      const freshUrl = window.location.origin + window.location.pathname + '?refresh=' + Date.now();
-      window.location.href = freshUrl;
+      // Reload cleanly without query parameter
+      window.location.href = window.location.origin + window.location.pathname;
     } catch (err) {
       console.error('Error clearing cache:', err);
       window.location.reload();

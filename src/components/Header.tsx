@@ -1,6 +1,7 @@
 import React from 'react';
 import { useExpense } from '../context/ExpenseContext';
-import { Wallet, Wifi, WifiOff, LogIn, LogOut, Bell } from 'lucide-react';
+import { usePWA } from '../context/PWAContext';
+import { Wallet, Wifi, WifiOff, LogIn, LogOut, Bell, Download, ExternalLink } from 'lucide-react';
 
 export const Header: React.FC<{ onOpenSettings: () => void }> = () => {
   const {
@@ -11,6 +12,8 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = () => {
     notificationPermission,
     requestNotificationPermission
   } = useExpense();
+
+  const { isInstallable, isInstalled, isStandalone, isIframe, promptInstall } = usePWA();
 
   return (
     <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 px-4 py-3">
@@ -30,6 +33,24 @@ export const Header: React.FC<{ onOpenSettings: () => void }> = () => {
 
         {/* Status Indicators & Actions */}
         <div className="flex items-center gap-2">
+          {/* Header Install App Button (When installable or iframe) */}
+          {!isStandalone && !isInstalled && (isInstallable || isIframe) && (
+            <button
+              onClick={() => {
+                if (isIframe) {
+                  window.open(window.location.href, '_blank', 'noopener,noreferrer');
+                } else if (isInstallable) {
+                  promptInstall();
+                }
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition-colors"
+              title="Install App as PWA"
+            >
+              {isIframe ? <ExternalLink className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5 animate-bounce" />}
+              <span className="hidden md:inline">{isIframe ? 'Open to Install' : 'Install App'}</span>
+            </button>
+          )}
+
           {/* Network status */}
           <div
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
