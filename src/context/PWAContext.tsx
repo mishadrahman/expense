@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -27,10 +28,20 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isIframe, setIsIframe] = useState(false);
-  const [hasUpdate, setHasUpdate] = useState(false);
-  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const [isBannerDismissed, setIsBannerDismissed] = useState(() => {
     return localStorage.getItem('pwa_install_banner_dismissed') === 'true';
+  });
+
+  const {
+    needRefresh: [hasUpdate],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onRegistered(r) {
+      console.log('[PWA] SW Registered:', r);
+    },
+    onRegisterError(error) {
+      console.log('[PWA] SW registration error', error);
+    },
   });
 
   // Check standalone mode and iOS environment
@@ -42,14 +53,13 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         window.matchMedia('(display-mode: standalone)').matches ||
         (navigator as unknown as { standalone?: boolean }).standalone === true ||
         document.referrer.includes('android-app://');
-
+      
       setIsStandalone(isStandaloneMode);
       if (isStandaloneMode) {
         setIsInstalled(true);
         setIsInstallable(false);
       }
     };
-
     checkStandalone();
 
     const mediaQuery = window.matchMedia('(display-mode: standalone)');
@@ -60,7 +70,6 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsInstallable(false);
       }
     };
-
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener('change', handleChange);
     }
@@ -103,68 +112,16 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
-  // Register Service Worker and manage updates
-  useEffect(() => {
-    if (!('serviceWorker' in navigator)) return;
-
-    const registerSW = async () => {
-      try {
-        const reg = await navigator.serviceWorker.register('sw.js');
-        setRegistration(reg);
-        console.log('[PWA] Service Worker registered successfully:', reg.scope);
-
-        // Check if a waiting worker exists
-        if (reg.waiting) {
-          setHasUpdate(true);
-        }
-
-        // Listen for new worker updates
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                setHasUpdate(true);
-                console.log('[PWA] New version ready for refresh');
-              }
-            });
-          }
-        });
-      } catch (err) {
-        console.error('[PWA] Service Worker registration failed:', err);
-      }
-    };
-
-    registerSW();
-
-    // Listen for controller changes (reload page when new service worker takes over)
-    let refreshing = false;
-    const handleControllerChange = () => {
-      if (!refreshing) {
-        refreshing = true;
-        window.location.reload();
-      }
-    };
-
-    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
-
-    return () => {
-      navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
-    };
-  }, []);
-
   // Trigger Install Prompt
   const promptInstall = useCallback(async (): Promise<boolean> => {
     if (!deferredPrompt) {
       console.warn('[PWA] No deferred prompt available');
       return false;
     }
-
     try {
       await deferredPrompt.prompt();
       const choiceResult = await deferredPrompt.userChoice;
       console.log('[PWA] User choice:', choiceResult.outcome);
-
       if (choiceResult.outcome === 'accepted') {
         setIsInstalled(true);
         setIsInstallable(false);
@@ -180,12 +137,8 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Trigger app update
   const updateApp = useCallback(() => {
-    if (registration && registration.waiting) {
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    } else {
-      window.location.reload();
-    }
-  }, [registration]);
+    updateServiceWorker(true);
+  }, [updateServiceWorker]);
 
   const dismissInstallBanner = useCallback(() => {
     setIsBannerDismissed(true);
