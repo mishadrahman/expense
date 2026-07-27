@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
   return {
-    base: './',
+    base: '/expense/',
     define: {
       'process.env': {},
     },
@@ -24,8 +24,9 @@ export default defineConfig(() => {
           background_color: '#ffffff',
           display: 'standalone',
           orientation: 'portrait',
-          start_url: '.',
-          id: '.',
+          start_url: '/expense/',
+          scope: '/expense/',
+          id: '/expense/',
           categories: ['finance', 'utilities', 'productivity'],
           icons: [
             {
