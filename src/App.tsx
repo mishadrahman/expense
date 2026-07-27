@@ -19,6 +19,15 @@ function AppContent() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
+  // Clean up ?refresh= URL parameter if present (after clear cache reload)
+  React.useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('refresh')) {
+      url.searchParams.delete('refresh');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
+
   const handleOpenAddModal = () => {
     setEditingExpense(null);
     setIsAddModalOpen(true);

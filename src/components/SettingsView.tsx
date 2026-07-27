@@ -34,7 +34,7 @@ export const SettingsView: React.FC = () => {
     clearCacheAndReload,
   } = useExpense();
 
-  const { isStandalone, isInstalled } = usePWA();
+  const { isStandalone, isInstalled, isInstallable, promptInstall } = usePWA();
   const [budget, setBudget] = useState<string>(settings.monthlyBudget.toString());
   const [currency, setCurrency] = useState<string>(settings.currency || '৳');
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(settings.notificationsEnabled);
@@ -283,6 +283,18 @@ export const SettingsView: React.FC = () => {
             </span>
           </div>
 
+          {!isInstalled && isInstallable && (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => promptInstall()}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-indigo-500 hover:bg-indigo-400 text-slate-950 text-xs font-bold transition-all shadow-lg shadow-indigo-500/20"
+              >
+                <Download className="w-4 h-4" />
+                <span>Install App (অ্যাপ ইনস্টল করুন)</span>
+              </button>
+            </div>
+          )}
           <div className="pt-2">
             <button
               type="button"
