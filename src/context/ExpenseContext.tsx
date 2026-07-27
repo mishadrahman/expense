@@ -449,13 +449,22 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Notification API & Local Reminder System
   const requestNotificationPermission = async (): Promise<boolean> => {
+    if (window.self !== window.top) {
+      alert('Notifications cannot be enabled inside the preview window. Please open the app in a new tab to enable notifications.');
+      return false;
+    }
     if (!('Notification' in window)) {
       alert('This browser does not support desktop notifications.');
       return false;
     }
-    const perm = await Notification.requestPermission();
-    setNotificationPermission(perm);
-    return perm === 'granted';
+    try {
+      const perm = await Notification.requestPermission();
+      setNotificationPermission(perm);
+      return perm === 'granted';
+    } catch (e) {
+      console.error('Error requesting notification permission:', e);
+      return false;
+    }
   };
 
   const sendTestNotification = () => {
