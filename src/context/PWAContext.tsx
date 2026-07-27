@@ -109,7 +109,7 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const registerSW = async () => {
       try {
-        const reg = await navigator.serviceWorker.register('/sw.js');
+        const reg = await navigator.serviceWorker.register('sw.js');
         setRegistration(reg);
         console.log('[PWA] Service Worker registered successfully:', reg.scope);
 
