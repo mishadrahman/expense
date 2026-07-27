@@ -38,7 +38,7 @@ export const InstallAppBanner: React.FC = () => {
     if (isInstallable) {
       promptInstall();
     } else {
-      alert("Browser is preparing the install option. Please interact with the app for a few seconds or use the browser's menu to 'Add to Home screen'.");
+      alert("Please open browser menu (3 dots) and tap 'Install app' or 'Add to Home screen' to install.");
     }
   };
 

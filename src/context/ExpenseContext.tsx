@@ -190,6 +190,12 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
           })) as Expense[];
           setExpenses(loadedExpenses);
         } else {
+          // If from cache, wait for server
+          if (snapshot.metadata.fromCache) {
+             // We can optionally clear expenses or leave them, but server will respond shortly.
+             return;
+          }
+          
           // Check if there are local guest expenses to backup to Firestore
           try {
             const storedLocalExp = localStorage.getItem(STORAGE_EXPENSES_KEY);
@@ -208,6 +214,7 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
                   }
                 });
                 setExpenses(localExps);
+                localStorage.removeItem(STORAGE_EXPENSES_KEY);
               } else {
                 setExpenses([]);
               }
@@ -236,14 +243,16 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
           })) as Category[];
           setCategories(loadedCats);
         } else {
-          // Initialize user categories with default if empty
-          DEFAULT_CATEGORIES.forEach(async (cat) => {
-            try {
-              await setDoc(doc(db, 'users', user.uid, 'categories', cat.id), cat);
-            } catch (err) {
-              console.error('Failed to init default category', err);
-            }
-          });
+          if (!snapshot.metadata.fromCache) {
+             // Initialize user categories with default if empty on server
+             DEFAULT_CATEGORIES.forEach(async (cat) => {
+               try {
+                 await setDoc(doc(db, 'users', user.uid, 'categories', cat.id), cat);
+               } catch (err) {
+                 console.error('Failed to init default category', err);
+               }
+             });
+          }
           setCategories(DEFAULT_CATEGORIES);
         }
       },
@@ -260,9 +269,11 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (docSnap.exists()) {
           setSettings(docSnap.data() as UserSettings);
         } else {
-          setDoc(settingsDocRef, DEFAULT_SETTINGS).catch((err) => {
-            console.error('Failed to init user settings', err);
-          });
+          if (!(docSnap as any).metadata?.fromCache) {
+            setDoc(settingsDocRef, DEFAULT_SETTINGS).catch((err) => {
+              console.error('Failed to init user settings', err);
+            });
+          }
           setSettings(DEFAULT_SETTINGS);
         }
       },

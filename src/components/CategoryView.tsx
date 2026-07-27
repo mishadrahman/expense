@@ -3,7 +3,7 @@ import { useExpense } from '../context/ExpenseContext';
 import { Category } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import { CategoryIcon } from './CategoryIcon';
-import { Tag, Plus, Edit2, Trash2, X, Check, FolderKanban } from 'lucide-react';
+import { Tag, Plus, Edit2, Trash2, X, Check, FolderKanban, AlertTriangle } from 'lucide-react';
 
 const PRESET_COLORS = [
   '#f59e0b', // Amber
@@ -41,6 +41,7 @@ export const CategoryView: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<{ id: string; name: string; isUsed: boolean } | null>(null);
 
   const [name, setName] = useState('');
   const [color, setColor] = useState(PRESET_COLORS[0]);
@@ -77,16 +78,16 @@ export const CategoryView: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleDelete = async (id: string, name: string) => {
+  const handleDeleteClick = (id: string, name: string) => {
     const isUsed = expenses.some((e) => e.categoryId === id);
-    if (isUsed) {
-      if (!confirm(`Warning: Category "${name}" is assigned to some recorded expenses. Delete anyway?`)) {
-        return;
-      }
-    } else {
-      if (!confirm(`Delete category "${name}"?`)) return;
+    setCategoryToDelete({ id, name, isUsed });
+  };
+
+  const confirmDelete = async () => {
+    if (categoryToDelete) {
+      await deleteCategory(categoryToDelete.id);
+      setCategoryToDelete(null);
     }
-    await deleteCategory(id);
   };
 
   // Calculate total expense per category
@@ -152,15 +153,13 @@ export const CategoryView: React.FC = () => {
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
-                {!cat.isDefault && (
-                  <button
-                    onClick={() => handleDelete(cat.id, cat.name)}
-                    className="p-2 rounded-xl bg-slate-800 hover:bg-rose-950 text-rose-400 transition-colors"
-                    title="Delete Category"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
+                <button
+                  onClick={() => handleDeleteClick(cat.id, cat.name)}
+                  className="p-2 rounded-xl bg-slate-800 hover:bg-rose-950 text-rose-400 transition-colors"
+                  title="Delete Category"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </div>
           );
@@ -261,6 +260,40 @@ export const CategoryView: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {categoryToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl p-6 text-center space-y-4">
+            <div className="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-2 border border-rose-500/20">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h3 className="font-extrabold text-lg text-slate-100">Delete Category?</h3>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Are you sure you want to delete <span className="text-slate-200 font-bold">"{categoryToDelete.name}"</span>?
+            </p>
+            {categoryToDelete.isUsed && (
+              <p className="text-xs text-rose-400 bg-rose-950/40 p-3 rounded-xl border border-rose-900/50">
+                Warning: This category is already assigned to some expenses. Deleting it will keep the expenses but they might lose their category reference.
+              </p>
+            )}
+            <div className="flex items-center justify-center gap-3 pt-4">
+              <button
+                onClick={() => setCategoryToDelete(null)}
+                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex-1 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-slate-950 text-xs font-bold flex-1 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
