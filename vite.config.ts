@@ -22,11 +22,9 @@ export default defineConfig(() => {
           description: 'Personal Expense Tracker with offline budget monitoring, custom categories, and instant data sync.',
           theme_color: '#0f172a',
           background_color: '#ffffff',
+          start_url: '.',
           display: 'standalone',
           orientation: 'portrait',
-          start_url: '/expense/',
-          scope: '/expense/',
-          id: '/expense/',
           categories: ['finance', 'utilities', 'productivity'],
           icons: [
             {
