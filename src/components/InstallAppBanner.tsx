@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { usePWA } from '../context/PWAContext';
-import { Download, ExternalLink, Share, PlusSquare, X } from 'lucide-react';
+import { Download, ExternalLink, Share, PlusSquare, X, RefreshCw } from 'lucide-react';
 
 export const InstallAppBanner: React.FC = () => {
   const { 
@@ -11,10 +11,40 @@ export const InstallAppBanner: React.FC = () => {
     promptInstall, 
     isIOS, 
     isBannerDismissed, 
-    dismissInstallBanner 
+    dismissInstallBanner,
+    hasUpdate,
+    updateApp
   } = usePWA();
   
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+
+  // If there is an update waiting, we should show this banner above everything else
+  if (hasUpdate) {
+    return (
+      <div className="bg-blue-600 w-full z-40 relative animate-fadeIn">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div 
+            className="flex items-center gap-3 cursor-pointer flex-1"
+            onClick={() => updateApp()}
+          >
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+              <RefreshCw className="w-4 h-4 text-white animate-spin-slow" />
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm leading-tight">App Update Available</p>
+              <p className="text-blue-100 text-xs mt-0.5">Click here to update to the latest version</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => updateApp()}
+            className="text-white text-xs font-bold px-3 py-1.5 bg-blue-700/50 hover:bg-blue-700 rounded-lg whitespace-nowrap shadow-sm transition-colors"
+          >
+            Update Now
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Hide if already installed, running as native app, or dismissed
   if (isStandalone || isInstalled || isBannerDismissed) {
